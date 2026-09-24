@@ -1,0 +1,204 @@
+/* =========================================================
+   CLEAN & OPEN ANIMATED STAR RATING (For White Background)
+   ========================================================= */
+
+/* 1. Main Setup (Khula aur Bina Background Ka) */
+.starability-slot {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start; /* Stars ko left side se shuru karne ke liye */
+  border: none;
+  padding: 10px 0; /* Container ki padding kam kardi gayi hai */
+  margin: 15px 0;
+  background: transparent; /* Black background hata diya gaya hai */
+  /* Koi box-shadow ya border-radius nahi hai */
+}
+
+/* 2. Original Radio Buttons ko Gayab Karna */
+.starability-slot legend,
+.starability-slot input[type="radio"] {
+  display: none;
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 3. Label Setup (Stars ke liye click area) */
+.starability-slot label {
+  font-size: 0;
+  cursor: pointer;
+  padding: 0 8px; /* Stars ke beech thoda gap */
+  position: relative;
+  display: inline-block;
+  transition: all 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 4. Base Star Design (Default Gold Color) */
+.starability-slot label::before {
+  content: "★";
+  font-size: 45px; /* Bade aur clear stars */
+  color: #ffc107; /* Bright Gold */
+  display: inline-block;
+  transition:
+    transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+    color 0.3s ease,
+    text-shadow 0.3s ease;
+  /* White background par soft shadow */
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* =========================================================
+   LOGIC: CHECKED STATE (Jo select hua hai)
+   ========================================================= */
+
+/* Jo star select kiya hai, uske aage wale saare stars ko Light Grey karna */
+.starability-slot input:checked ~ label::before {
+  color: #e4e5e9; /* Light grey color (White bg ke liye perfect) */
+  text-shadow: none;
+}
+
+/* Default '0' rating condition (No stars gold) */
+.starability-slot input.input-no-rate:checked ~ label::before {
+  color: #e4e5e9;
+}
+
+/* =========================================================
+   LOGIC: HOVER EFFECTS (Mouse ghumane par)
+   ========================================================= */
+
+/* Hover karne par saare stars temporary gold ho jayein */
+.starability-slot:hover label::before {
+  color: #ffc107 !important;
+}
+
+/* Jis star par mouse hai, sirf uske aage wale light grey dikhein */
+.starability-slot label:hover ~ label::before {
+  color: #e4e5e9 !important;
+  text-shadow: none !important;
+}
+
+/* =========================================================
+   ANIMATIONS: POP, GLOW & PRESS
+   ========================================================= */
+
+/* Hover kiye gaye star par Bada Glow aur Rotate effect */
+.starability-slot label:hover::before {
+  transform: scale(1.4) rotate(-10deg);
+  color: #ffca28 !important; /* Thoda aur chamkila peela */
+  text-shadow:
+    0 0 15px rgba(255, 193, 7, 0.5),
+    0 0 30px rgba(255, 193, 7, 0.3) !important;
+  z-index: 10;
+  position: relative;
+}
+
+/* Click karne par 'POP' Animation trigger karna */
+.starability-slot input:checked + label::before {
+  animation: starPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  color: #ff9800; /* Deep gold for the selected star */
+  text-shadow: 0 0 20px rgba(255, 152, 0, 0.4);
+}
+
+/* Click karte waqt dabne wala (Press) effect */
+.starability-slot label:active::before {
+  transform: scale(0.85);
+  transition: transform 0.1s;
+}
+
+/* =========================================================
+   CUSTOM KEYFRAMES (Star Bouncing Animation)
+   ========================================================= */
+@keyframes starPop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.4) rotate(15deg);
+  }
+  70% {
+    transform: scale(0.9) rotate(-5deg);
+  }
+  100% {
+    transform: scale(1.1) rotate(0deg);
+  }
+}
+
+/* =========================================================
+   TOOLTIPS (Hover karne par "Amazing", "Terrible" dikhana)
+   ========================================================= */
+.starability-slot label::after {
+  content: attr(title); /* Aapke HTML se title uthayega */
+  position: absolute;
+  bottom: -45px;
+  left: 50%;
+  transform: translateX(-50%) translateY(15px);
+  background: #333333; /* White background par clear dikhne ke liye dark tooltip */
+  color: #ffffff;
+  font-size: 14px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 6px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  white-space: nowrap;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Hover par Tooltip ko upar laana aur dikhana */
+.starability-slot label:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* =========================================================
+   STATIC STAR RATING DISPLAY (Reviews dikhane ke liye)
+   ========================================================= */
+
+/* Main class (Purane text ko chupane aur position set karne ke liye) */
+.starability-result {
+  font-size: 0;
+  position: relative;
+  display: inline-block;
+  margin: 10px 0;
+}
+
+/* Background Grey Stars (Empty) - Badi Size */
+.starability-result::before {
+  content: "★★★★★";
+  font-size: 35px; /* Size badhai gayi hai */
+  color: #e4e5e9;
+  letter-spacing: 3px;
+}
+
+/* Foreground Gold Stars (Filled) - Badi Size */
+.starability-result::after {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: #ffc107;
+  font-size: 35px; /* Same badi size */
+  letter-spacing: 3px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Number ke hisaab se Gold Stars dikhana (Yeh lines miss ho gayi thi) */
+.starability-result[data-rating="1"]::after {
+  content: "★";
+}
+.starability-result[data-rating="2"]::after {
+  content: "★★";
+}
+.starability-result[data-rating="3"]::after {
+  content: "★★★";
+}
+.starability-result[data-rating="4"]::after {
+  content: "★★★★";
+}
+.starability-result[data-rating="5"]::after {
+  content: "★★★★★";
+}
