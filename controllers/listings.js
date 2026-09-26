@@ -1,12 +1,17 @@
 const Listing = require("../models/listing");
+// const ExpressError = require("../utils/ExpressError.js");
+const mbxGeocoding = require("@mapbox/mapbox-sdk/services/geocoding");
+const { query } = require("../routes/listing");
+const mapToken = process.env.MAP_TOKEN;
+const geocodingClient = mbxGeocoding({ accessToken: mapToken });
 
 module.exports.index = async (req, res) => {
     let allListings = await Listing.find({});
     res.render("listings/index.ejs", { allListings });
-}
+};
 module.exports.renderNewForm = (req, res) => {
     res.render("listings/new.ejs");
-}
+};
 
 module.exports.showListing = async (req, res) => {
     let { id } = req.params;
@@ -27,15 +32,29 @@ module.exports.showListing = async (req, res) => {
     }
     console.log(listing);
     res.render("listings/show.ejs", { listing });
-}
+};
 
 module.exports.createListing = async (req, res) => {
+    let response = await geocodingClient
+        .forwardGeocode({
+            query: req.body.listing.location,
+            limit: 1,
+        })
+        .send();
+
+    console.log(response.body.features[0].geometry);
+    res.send("Done !");
+
+    let url = req.file.path;
+    let filename = req.file.filename;
+
     const newListing = new Listing(req.body.listing);
     newListing.owner = req.user._id;
+    newListing.image = { url, filename };
     await newListing.save();
     req.flash("success", "Sucessfully added new listing");
     res.redirect("/listings");
-}
+};
 
 module.exports.renderEditForm = async (req, res) => {
     let { id } = req.params;
@@ -47,15 +66,24 @@ module.exports.renderEditForm = async (req, res) => {
         );
         return res.redirect("/listings");
     }
-    res.render("listings/edit.ejs", { updatedListing });
-}
+    let originalImageUrl = updatedListing.image.url;
+    originalImageUrl = originalImageUrl.replace("/upload", "/upload/w_250");
+    res.render("listings/edit.ejs", { updatedListing, originalImageUrl });
+};
 
 module.exports.updateListing = async (req, res) => {
     let { id } = req.params;
-    await Listing.findByIdAndUpdate(id, { ...req.body.listing });
+    let listing = await Listing.findByIdAndUpdate(id, { ...req.body.listing });
+
+    if (typeof req.file != "undefined") {
+        let url = req.file.path;
+        let filename = req.file.filename;
+        listing.image = { url, filename };
+        await listing.save();
+    }
     req.flash("success", "Listing Updated successfully");
     res.redirect(`/listings/${id}`);
-}
+};
 
 module.exports.destroyListing = async (req, res) => {
     let { id } = req.params;
@@ -63,4 +91,4 @@ module.exports.destroyListing = async (req, res) => {
     console.log(deletedListing);
     req.flash("success", "Listing deleted !");
     res.redirect("/listings");
-}
+};
