@@ -1,6 +1,7 @@
 <% layout("/layouts/boilerplate.ejs") %>
 <script>
     const mapToken = "<%= process.env.MAP_TOKEN %>";
+    const listing = <%- JSON.stringify(listing) %>;
 </script>
 
     <div class="row mt-3">
@@ -103,10 +104,12 @@
                                                 <%= review.comment %>
                                             </p>
                                         </div>
+                                        <% if(currUser && currUser._id.equals(review.author._id)) { %>
                                         <form class="mb-3" method="POST"
                                             action="/listings/<%= listing.id %>/reviews/<%= review.id %>?_method=DELETE">
                                             <button class="btn btn-sm btn-dark">Delete</button>
                                         </form>
+                                        <% } %>
                                     </div>
                                     <% } %>
                             </div>
@@ -115,8 +118,6 @@
                 <div class="col-6 offset-3 mb-3">
                     <h3>Where you'll be</h3>
                     <div id="map"></div>
-                </div>
-
                 </div>
 
 <script src="/js/map.js"></script>
